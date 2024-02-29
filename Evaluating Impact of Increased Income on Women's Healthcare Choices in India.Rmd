@@ -1,0 +1,258 @@
+---
+title: "Evaluating Impact of Increased Income on Women's Healthcare Choices in India"
+author: "Nandita Vaidyanathan"
+date: "2023-12-03"
+output:
+  html_document:
+    df_print: paged
+  pdf_document: default
+---
+## Introduction
+
+There is a large body of research that looks at the impact of gender on the allocation of resources in a household. Research (Yoong et al., 2012) suggests that women make better efficient investment decisions and allocation of resources, explaining why several anti-poverty cash transfers are targeted at women.Evidence from in-kind and conditional transfers in developing countries shows that giving women financial responsibility and accountability significantly improved the nutritional status of the household (Bouillon & Ya´nez-Pagans,2011), human capital investment decisions (Chatterjee & Poddar,2021) and reduced expenditure on intoxicants (Doepke & Tertilt, 2019).Healthcare decision-making, in particular, is often in the hands of the male members of a family, and the percentage of income spent on women's healthcare is marginally low. 
+
+This research memo aims to study the impact of a direct increase in women's disposasble income in predicting increase in healthcare expenditure. In February 2018, amendments were made to the Employees Provident Fund and Miscellaneous Provisions Act which increased the take-home salary of female workers in the formal sector by reducing the percentage of provision for employee contribution. By using this policy implementation as an exogenous shock to income this research memo aims to examine whether there is a rise in women's health expenditure.
+
+```{r}
+options(repos = c(CRAN = "https://cran.rstudio.com"))
+install.packages("devtools")
+devtools::install_github("kupietz/kableExtra")
+remotes::install_github("rstudio/htmltools")
+pkgbuild::check_build_tools(debug = TRUE)
+install.packages("htmltools")
+library(htmltools)
+install.packages("readr")
+library(readr)
+install.packages("vroom")
+library(vroom)
+install.packages("tidyverse")
+library(tidyverse)
+library(glue)
+library(dplyr)
+library(ggplot2)
+install.packages("gtsummary")
+library(gtsummary)
+install.packages("kableExtra")
+library(kableExtra)
+library(tidyr)
+# loading and cleaning data
+setwd("/Users/nandita/Documents/Final Project")
+getwd()
+##loading in monthly data and binding them to form annual data
+
+# read in 2016 data
+myList <- vector('list',12) 
+month <- c("January", "February", "March","April", "May", "June", "July", "August", "September", "October", "November", "December")
+filename <- glue("/Users/nandita/Downloads/Final Project/2016 {month}.csv")
+
+for (i in 1:12) {
+  year2016 <- read_csv(filename[i])
+  myList[[i]] <- year2016
+  print(i)
+}
+
+df <- bind_rows(myList)
+
+```
+
+```{r}
+# Read in 2017 data
+myList17 <- vector('list',12)
+month <- c("January", "February", "March","April", "May", "June", "July", "August", "September", "October", "November", "December")
+filename <- glue("Users/nandita/Downloads/Final Project/2017 {month}.csv")
+
+for (i in 1:12) {
+  year2017 <- read_csv(filename[i])
+  myList17[[i]] <- year2017
+  print(i)
+}
+df17 <- bind_rows(myList17)
+```
+```{r}
+getwd()
+setwd("/Users/nandita/Downloads/Final Project")
+# read in 2018 data
+myList18 <- vector('list',12)
+month <- c("January", "February", "March","April", "May", "June", "July", "August", "September", "October", "November", "December")
+filename <- glue("Users/nandita/Downloads/Final Project/2018 {month}.csv")
+
+for (i in 1:12) {
+  year2018 <- read_csv(filename[i])
+  myList18[[i]] <- year2018
+  print(i)
+}
+df18 <- bind_rows(myList18)
+
+```
+```{r}
+#read in 2019 data
+myList19 <- vector('list',12)
+month <- c("January", "February", "March","April", "May", "June", "July", "August", "September", "October", "November", "December")
+filename <- glue("/Users/nandita/Downloads/2019 {month}.csv")
+
+for (i in 1:12) {
+  year2019 <- read_csv(filename[i])
+  myList19[[i]] <- year2019
+  print(i)
+}
+df19 <- bind_rows(myList19)
+```
+
+```{r}
+##converting capitalized names of each dataframe to lower case for neatness
+
+names(df) <- tolower(names(df))
+names(df17) <- tolower(names(df17))
+names(df18) <- tolower(names(df18))
+names(df19) <- tolower(names(df19))
+
+```
+```{r}
+
+##Choosing the variables from each dataframe for analysis
+
+df <- df %>%
+      select(hh_id, state, month, gender_group, occupation_group, tot_exp, m_exp_food, m_exp_clothing_n_footwear, m_exp_recreation, m_exp_bills_n_rent, m_exp_transport, m_exp_health, m_exp_doctors_physio_fee, m_exp_medical_tests, m_exp_hospitalisation_fees, m_exp_hospitalisation_fees, m_exp_health_ins_premium, m_exp_health_enhancement)
+```
+
+```{r}
+df17 <- df17 %>%
+          select(hh_id, state, month, gender_group, occupation_group, tot_exp, m_exp_food, m_exp_clothing_n_footwear, m_exp_recreation, m_exp_bills_n_rent, m_exp_transport, m_exp_health, m_exp_doctors_physio_fee, m_exp_medical_tests, m_exp_hospitalisation_fees, m_exp_hospitalisation_fees, m_exp_health_ins_premium, m_exp_health_enhancement)
+```
+```{r}
+df18 <- df18 %>%
+          select(hh_id, state, month, gender_group, occupation_group, tot_exp, m_exp_food, m_exp_clothing_n_footwear, m_exp_recreation, m_exp_bills_n_rent, m_exp_transport, m_exp_health, m_exp_doctors_physio_fee, m_exp_medical_tests, m_exp_hospitalisation_fees, m_exp_hospitalisation_fees, m_exp_health_ins_premium, m_exp_health_enhancement)
+```
+
+```{r}
+df19 <- df19 %>%
+          select(hh_id, state, month, gender_group, occupation_group, tot_exp, m_exp_food, m_exp_clothing_n_footwear, m_exp_recreation, m_exp_bills_n_rent, m_exp_transport, m_exp_health, m_exp_doctors_physio_fee, m_exp_medical_tests, m_exp_hospitalisation_fees, m_exp_hospitalisation_fees, m_exp_health_ins_premium, m_exp_health_enhancement)
+```
+
+```{r}
+## binding all sample data frame into one combined data frame which I will be using for analysis
+
+final_hh_data <- bind_rows(
+  mutate(df, year = 2016),
+  mutate(df17, year = 2017),
+  mutate(df18, year = 2018),
+  mutate(df19, year = 2019)
+)
+# creating a uniform pattern of the Month variable showing Month and Year
+final_hh_data$month <- sub("-", " 20", final_hh_data$month)
+
+```
+
+The research memo obtains data from Center for Monitoring Indian Economy’s
+(CMIE) Consumer Pyramid Household Survey (CPHS) which obtains data on Indian Households' monthly expenditure every quarter between January 2016 to February 2020. This is a rich dataset averaging  164,872 households per Wave, representative of 98.5 percent of the Indian population (CMIE Website, n.d).
+
+The CPHS has divided households based on seven gender-distribution groups: Only male households, Male dominated households, Male majority households, Gender balanced households, Female majority households, Female dominated households and Only female households. Since this research memo is examining the impact of a positive income shock on health expenditure, it restricts data to female-majority, Female-dominated, and only female households to capture the nature of female household decision-making. Given that the policy affects women in the formal sector, we will classify the sample's occupation group into formal and informal sector.
+
+
+```{r}
+#subsetting only households that are female majority
+final_hh_data <- final_hh_data %>%
+                 filter(gender_group == "Female Dominated"| gender_group == "Only Females"| gender_group== "Female Majority")
+```
+
+Since the policy intervention is focused on female workers in the formal sector, we classify the occupation group into formal and informal employment based on various alternative definitions for the sake of the study. Table 1 shows the distribution of our sample by their employment and occupation group. 60 percent of the female workers in the households are employed in some sort of informal employment, which consists of self-employment in informal enterprises and wage employment. While 40 percent of women are employed in the formal sector,which includes jobs that are characterised by regular pay, written contracts and social security. Wage Labourers seem to be the highest population, which falls under informal employment, and Social Workers seem to be the lowest population, which is a formal employment.
+```{r}
+#classifying occupation groups as formal or informal employment 
+final_hh_data <- final_hh_data %>%
+                  mutate(employment_type = case_when(occupation_group %in% c("Business & Salaried Employees", "Industrial Workers", "Legislators/Social Workers/Activists", "Managers/Supervisors", "Non-industrial Technical Employees", "Organised 5Farmers", "Qualified Self-employed Professionals", "Wage Labourers", "White-collar Clerical Employees", "White-collar Professional Employees")~ 'Formal Employment', occupation_group == "Data Not Available" ~ "Not Available",
+      TRUE ~ "Informal Employment"))
+
+# creating a table by selecting employment_type and occupation_group and sorting them in ascending order
+table1 <- final_hh_data %>%
+                   select(employment_type, occupation_group) %>%
+                   tbl_summary(sort = all_categorical() ~ "frequency")%>%
+                  as_gt() %>%
+                  gt::tab_header(title = "Table 1. Percentage of Female Workers by Employment and Occupation Group")
+```
+
+For this research memo, we will focus on the monthly expenditure of households on healthcare as the main outcome variable. Under this variable, we will also analyse dependent variables on monthly healthcare expenditure which includes expenditure on medical fees, tests, hospitalization fees, health insurance premium, and health enhancement. Table 2 provides an overview of health expenditure trends among female households in India over the years 2016 to 2019.We see that there has been a significant rise in total health expenditure (m_exp_health) from year 2017 to 2018.Health enhancement, which includes health services like hygiene products, fitness services, parlors and spas, seems to be the highest share of the total health expenditure, indicating increasing financial commitment to overall women's well-being and health.
+
+```{r}
+#selecting variables under health expenditure and other expenditure 
+health_exp <- c("m_exp_health", "m_exp_doctors_physio_fee", "m_exp_medical_tests",
+                        "m_exp_hospitalisation_fees", "m_exp_health_ins_premium", "m_exp_health_enhancement")
+
+avg_health_exp <- final_hh_data %>% 
+                        group_by(year)%>%
+                        summarise(across(all_of(health_exp), mean))
+
+# now we create a table summarising the main outcome variables
+
+table2 <- avg_health_exp %>%
+  pivot_longer(
+    cols = health_exp, 
+    names_to = "Health Outcome", values_to = "Mean"
+  ) %>%
+  pivot_wider(names_from = year, values_from = "Mean") %>%
+  kable(caption = "Table 2. Average Health Expenditure in Millions INR", format = "html") %>%
+  kable_styling()
+
+
+```
+## Empirical Analysis
+We will study the impact of the policy on health care expenditure using the following regression modeling. Here the beneficiary variable equals 1 if the household is predominantly in the formal sector, and 0 for informal sector.The variable "Beneficiary" acts as a dummy variable, assuming a value of 1 if an individual is engaged in formal employment and 0 if otherwise.This distinction enables the examination of the specific demographic affected by the policy. The vairable "Post_2018" is a dummy variable that takes the value of 1 if the observation corresponds to a date on or after February 2018 and 0 otherwise.This temporal categorization facilitates a comparative analysis between periods before and after the policy changes.
+```{r}
+# creating dummy variable for Beneficiary  
+final_hh_data$Beneficiary <- ifelse(final_hh_data$employment_type == 'Formal Employment', 1, 0)
+
+# creating a date variable by using a reference date
+final_hh_data$Date <- dmy(paste0("01-", final_hh_data$month))
+reference_date <- ymd("2018-02-01")
+
+# creating dummy variable for Post February 2018 
+final_hh_data$Post_2018 <- ifelse(final_hh_data$Date >= reference_date, 1, 0)
+
+#converting the health expenditure variable to log to correct for any skewed data
+final_hh_data <- final_hh_data %>%
+                  mutate(log_m_exp_health = log(m_exp_health))
+                  
+#creating the regression model
+reg_model <- lm(m_exp_health ~ Beneficiary * Post_2018, data = final_hh_data)
+summary(reg_model)
+```
+
+The results suggest a nuanced relationship between healthcare expenditure and the increase in income stemming from the policy implementation in February 2018. Specifically, individuals in formal employment experience a positive association with healthcare expenditure, as indicated by the significant coefficient for the Beneficiary variable. Moreover, the substantial and positive coefficient for the Post_2018 variable implies an overall increase in healthcare spending during the post-2018 period, irrespective of employment status. Importantly, the interaction term suggests that the policy-induced income rise has an additional impact on healthcare expenditure for individuals in formal employment during the post-2018 period by 26.45 units.
+
+Figure 1. shows the monthly average health expenditure of the Beneficiary and Non-beneficiary groups. Beneficiary groups do spend higher on average health expenditure due to their higher disposable income as a result of their employment. There is a spike in health expenditure for both beneficiary and non-beneficiary groups in 2018, followed by a normalization in 2019.As the regression analysis suggests, the policy change may have resulted in an increase in income for women, particularly those in formal employment. The initial spike could be indicative of increased healthcare spending as individuals adjusted to the change in disposable income.The subsequent normalization in 2019 may signify stabilization or adaptation to the new income levels. Individuals, both beneficiaries and non-beneficiaries, could have adjusted their spending patterns, leading to a more consistent trend in healthcare expenditure.
+
+```{r}
+#calculating monthly average of health expenditure
+
+monthly_avg_data <- final_hh_data %>%
+  group_by(Date, Beneficiary) %>%
+  summarise(mean_health_expenditure = mean(m_exp_health))
+  
+#creating line plot depicting the monthly average health expenditure over time for beneficiary and non-beneficiary groups
+
+figure_1 <- ggplot(monthly_avg_data, aes(x = Date, y = mean_health_expenditure, color = factor(Beneficiary))) +
+  geom_line() +
+  scale_x_date(date_labels = "%b %Y", date_breaks = "6 months") + 
+  scale_color_manual(values = c("0" = "blue", "1" = "red"), 
+                     labels = c("0" = "Non-Beneficiary", "1" = "Beneficiary")) + 
+  labs(title = "Figure 1. Monthly Average Health Expenditure",
+       x = "Month and Year",
+       y = "Average Health Expenditure",
+       color = "Group")
+```
+##Concluding Remarks
+
+This research memo looked at the impact of the amendment to Employees Provident Fund and Miscellaneous Provisions Act which increased the disposable income of female workers in the formal sector, on the health expenditure of female-majority households in India. Through a regression model, there seems to be a positive association between the beneficiary group and increased spending, particularly following the policy implementation. However, the researcher acknowledges potential limitations in the model, necessitating a reevaluation. Furthermore, the data set has inherent limitations of being between 2016 to 2019, too less of a time period to examine the impact of the policy implementation. Despite its limitations, and rudimentary analysis, the research memo urges a nuanced consideration of income-related policy changes and their ensuing effects on healthcare expenditure patterns. 
+
+## References
+
+1. Bouillon, C. P., & Yáñez-Pagans, P. (2011). Dynamic Consistency of multidimensional and income targeting: An application for Mexico using panel data information. Social Science Research Network. https://doi.org/10.2139/ssrn.1818763
+
+2. Chatterjee, S., & Poddar, P. (2021). From safe motherhood to Cognitive Ability: Exploring intrahousehold and intergenerational spillovers. Economica, 88(352), 1075–1106. https://doi.org/10.1111/ecca.12383 
+
+3. CMIE. (n.d.). https://www.cmie.com/kommon/bin/sr.php?kall=wproducts&tabno=7010&prd=cpdx&portal_code=030030060010000000000000000000000000000000000
+
+4. Doepke, M., & Tertilt, M. (2019). Does female empowerment promote economic development? Journal of Economic Growth, 24(4), 309–343. https://doi.org/10.1007/s10887-019-09172-4
+
+5. Yoong, J., Rabinovich, L., & Diepeveen, S. (2012). The Impact of Economic Resource Transfers to Women Versus Men: A Systematic Review. EPPI-Centre. http://r4d.dfid.gov.uk/PDF/Outputs/SystematicReviews/EconomicTtransfer2012Yoong.pdf
+
+6. Agarwal, S., Chatterjee, S., & Chatterjee, C. (2022). Sweet cash: Is healthcare a normal good for women in developing countries? Social Science Research Network. https://doi.org/10.2139/ssrn.4302532
